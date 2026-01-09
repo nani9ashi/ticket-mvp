@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.conf import settings
 from .models import Ticket, Comment, TicketHistory, TicketStatus
 
 def role_of(user):
@@ -18,6 +19,9 @@ def is_agent_user(user: User) -> bool:
     return user.groups.filter(name="Agent").exists()
 
 def can_view(user, ticket: Ticket) -> bool:
+    if getattr(settings, "INTENTIONAL_BUG_IDOR", False):
+        return True
+
     r = role_of(user)
     if r in ("Admin", "Agent"):
         return True
