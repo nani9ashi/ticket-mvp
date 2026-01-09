@@ -81,6 +81,7 @@ class TicketHistory(models.Model):
         STATUS_CHANGED = "STATUS_CHANGED"
         ASSIGNEE_CHANGED = "ASSIGNEE_CHANGED"
         COMMENT_ADDED = "COMMENT_ADDED"
+        DUE_DATE_CHANGED = "DUE_DATE_CHANGED"
 
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="history")
     actor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)

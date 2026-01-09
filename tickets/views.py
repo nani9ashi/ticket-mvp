@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
-
+from django.utils import timezone
 from .models import Ticket, Comment, TicketHistory, TicketStatus
 
 def role_of(user):
@@ -115,7 +115,6 @@ def ticket_change_status(request, pk):
     if request.method != "POST":
         return HttpResponseForbidden("POST only")
 
-    # 運用ルール：担当未割当は Agent が更新できない（AdminはOK）
     if role_of(request.user) == "Agent" and ticket.assignee_id is None:
         return HttpResponseForbidden("unassigned ticket cannot be updated by agent")
 
@@ -196,5 +195,32 @@ def ticket_add_comment(request, pk):
         ticket=ticket,
         actor=request.user,
         action=TicketHistory.Action.COMMENT_ADDED,
+    )
+    return redirect("ticket_detail", pk=ticket.pk)
+
+@login_required
+def ticket_change_due_date(request, pk):
+    ticket = get_object_or_404(Ticket, pk=pk)
+    if role_of(request.user) != "Admin":
+        return HttpResponseForbidden("forbidden")
+    if request.method != "POST":
+        return HttpResponseForbidden("POST only")
+
+    due = request.POST.get("due_date") or ""
+    old = ticket.due_date.isoformat() if ticket.due_date else ""
+
+    if due == "":
+        ticket.due_date = None
+    else:
+        ticket.due_date = due
+        ticket.full_clean()
+
+    ticket.save(update_fields=["due_date", "updated_at"])
+
+    new = ticket.due_date.isoformat() if ticket.due_date else ""
+    TicketHistory.objects.create(
+        ticket=ticket, actor=request.user,
+        action=TicketHistory.Action.DUE_DATE_CHANGED,
+        from_value=old, to_value=new,
     )
     return redirect("ticket_detail", pk=ticket.pk)

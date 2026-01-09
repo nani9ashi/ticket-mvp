@@ -41,6 +41,16 @@
 <hr/>
 {% endif %}
 
+{% if role == "Admin" %}
+<h3>Due date (Admin only)</h3>
+<form method="post" action="/tickets/{{ ticket.id }}/due/">
+  {% csrf_token %}
+  <input type="date" name="due_date" value="{{ ticket.due_date|date:'Y-m-d' }}" />
+  <button type="submit">Save</button>
+</form>
+<hr/>
+{% endif %}
+
 <h3>Status Transition</h3>
 {% if can_update_status %}
   <form method="post" action="/tickets/{{ ticket.id }}/status/">
