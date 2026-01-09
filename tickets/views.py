@@ -82,12 +82,14 @@ def ticket_create(request):
     if request.method == "POST":
         title = (request.POST.get("title") or "").strip()
         body = (request.POST.get("body") or "").strip()
-        due = request.POST.get("due_date") or None
         attachment = request.FILES.get("attachment")
 
-        t = Ticket(title=title, body=body, requester=request.user, attachment=attachment)
-        if due:
-            t.due_date = due
+        t = Ticket(
+            title=title,
+            body=body,
+            requester=request.user,
+            attachment=attachment,
+        )
 
         try:
             t.full_clean()
@@ -95,10 +97,15 @@ def ticket_create(request):
             return render(request, "tickets/create.html", {"error": str(e)})
 
         t.save()
-        TicketHistory.objects.create(ticket=t, actor=request.user, action=TicketHistory.Action.CREATED)
+        TicketHistory.objects.create(
+            ticket=t,
+            actor=request.user,
+            action=TicketHistory.Action.CREATED
+        )
         return redirect("ticket_detail", pk=t.pk)
 
     return render(request, "tickets/create.html")
+
 
 @login_required
 def ticket_change_status(request, pk):
