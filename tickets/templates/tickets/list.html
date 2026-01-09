@@ -1,0 +1,38 @@
+﻿{% extends "tickets/base.html" %}
+{% block content %}
+<h2>Ticket List (Role: {{ role }})</h2>
+
+<form method="get" style="display:flex; gap:8px; align-items:center;">
+  <input name="q" placeholder="search title/body" value="{{ q }}" />
+  <select name="status">
+    <option value="">(all statuses)</option>
+    {% for v, label in statuses %}
+      <option value="{{ v }}" {% if status == v %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit">Search</button>
+</form>
+
+{% if role == "Requester" %}
+  <p><a href="/tickets/new/">+ Create Ticket</a></p>
+{% endif %}
+
+<table border="1" cellpadding="6" cellspacing="0">
+  <tr>
+    <th>ID</th><th>Title</th><th>Status</th><th>Due</th><th>Requester</th><th>Assignee</th><th>Updated</th>
+  </tr>
+  {% for t in tickets %}
+  <tr>
+    <td>{{ t.id }}</td>
+    <td><a href="/tickets/{{ t.id }}/">{{ t.title }}</a></td>
+    <td>{{ t.get_status_display }}</td>
+    <td>{{ t.due_date|default:"-" }}</td>
+    <td>{{ t.requester.username }}</td>
+    <td>{% if t.assignee %}{{ t.assignee.username }}{% else %}-{% endif %}</td>
+    <td>{{ t.updated_at }}</td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="7">No tickets</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

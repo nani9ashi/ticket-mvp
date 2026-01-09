@@ -1,0 +1,31 @@
+﻿{% extends "tickets/base.html" %}
+{% block content %}
+<h2>Create Ticket</h2>
+
+{% if error %}
+  <p style="color:red;">{{ error }}</p>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div>
+    <label>Title (required, max 80)</label><br/>
+    <input name="title" maxlength="80" style="width:520px;" />
+  </div>
+  <div style="margin-top:8px;">
+    <label>Body (required)</label><br/>
+    <textarea name="body" rows="8" cols="80"></textarea>
+  </div>
+  <div style="margin-top:8px;">
+    <label>Due date (optional, not past)</label><br/>
+    <input type="date" name="due_date" />
+  </div>
+  <div style="margin-top:8px;">
+    <label>Attachment (optional: png/jpg/pdf/txt, max 5MB)</label><br/>
+    <input type="file" name="attachment" />
+  </div>
+  <div style="margin-top:12px;">
+    <button type="submit">Create</button>
+  </div>
+</form>
+{% endblock %}

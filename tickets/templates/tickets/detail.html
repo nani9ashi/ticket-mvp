@@ -1,0 +1,97 @@
+﻿{% extends "tickets/base.html" %}
+{% block content %}
+<h2>Ticket #{{ ticket.id }}</h2>
+
+<table border="1" cellpadding="6" cellspacing="0">
+  <tr><th>Title</th><td>{{ ticket.title }}</td></tr>
+  <tr><th>Status</th><td>{{ ticket.get_status_display }} ({{ ticket.status }})</td></tr>
+  <tr><th>Requester</th><td>{{ ticket.requester.username }}</td></tr>
+  <tr><th>Assignee</th>
+    <td>{% if ticket.assignee %}{{ ticket.assignee.username }}{% else %}-{% endif %}</td>
+  </tr>
+  <tr><th>Due</th><td>{{ ticket.due_date|default:"-" }}</td></tr>
+  <tr><th>Body</th><td><pre style="white-space:pre-wrap;">{{ ticket.body }}</pre></td></tr>
+  <tr><th>Attachment</th>
+    <td>
+      {% if ticket.attachment %}
+        <a href="{{ ticket.attachment.url }}">{{ ticket.attachment.name }}</a>
+      {% else %}
+        -
+      {% endif %}
+    </td>
+  </tr>
+</table>
+
+<hr/>
+
+{% if role == "Admin" %}
+<h3>Assign (Admin only)</h3>
+<form method="post" action="/tickets/{{ ticket.id }}/assign/">
+  {% csrf_token %}
+  <select name="assignee_id">
+    <option value="">(unassign)</option>
+    {% for u in agents %}
+      <option value="{{ u.id }}" {% if ticket.assignee and ticket.assignee.id == u.id %}selected{% endif %}>
+        {{ u.username }}
+      </option>
+    {% endfor %}
+  </select>
+  <button type="submit">Save</button>
+</form>
+<hr/>
+{% endif %}
+
+<h3>Status Transition</h3>
+{% if can_update_status %}
+  <form method="post" action="/tickets/{{ ticket.id }}/status/">
+    {% csrf_token %}
+    <select name="status">
+      {% for s in next_candidates %}
+        <option value="{{ s }}">{{ s }}</option>
+      {% empty %}
+        <option value="">(no transitions)</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Change Status</button>
+  </form>
+{% else %}
+  <p>Not allowed to change status.</p>
+{% endif %}
+
+<hr/>
+
+<h3>Comments</h3>
+<form method="post" action="/tickets/{{ ticket.id }}/comment/">
+  {% csrf_token %}
+  <textarea name="body" rows="3" cols="80" placeholder="add comment..."></textarea><br/>
+  <button type="submit">Add Comment</button>
+</form>
+
+<ul>
+  {% for c in ticket.comments.all %}
+    <li>
+      <b>{{ c.author.username }}</b> ({{ c.created_at }}):<br/>
+      <pre style="white-space:pre-wrap;">{{ c.body }}</pre>
+    </li>
+  {% empty %}
+    <li>No comments</li>
+  {% endfor %}
+</ul>
+
+<hr/>
+
+<h3>History</h3>
+<ul>
+  {% for h in ticket.history.all %}
+    <li>
+      {{ h.created_at }} / {{ h.actor.username }} / {{ h.action }}
+      {% if h.from_value or h.to_value %}
+        ({{ h.from_value|default:"" }} → {{ h.to_value|default:"" }})
+      {% endif %}
+    </li>
+  {% empty %}
+    <li>No history</li>
+  {% endfor %}
+</ul>
+
+{% endblock %}
