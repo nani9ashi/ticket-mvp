@@ -2,9 +2,6 @@
 
 BtoB業務アプリで頻出する **ワークフロー（状態遷移）・ロール認可・入力検証・監査ログ（履歴）** を最小構成で揃えた、チケット管理アプリのMVPです。
 
-本リポジトリは「アプリ実装」側です。  
-QA成果物（テスト計画／テスト設計／テストケース／結果／欠陥ログなど）は別リポジトリで管理します。
-
 ---
 
 ## 1. 目的と範囲
@@ -64,9 +61,6 @@ python manage.py runserver
 - Agent：`agent1`, `agent2`
 - Admin（アプリロール）：`admin1`
 
-> 注意：`admin1` は「アプリ内ロール（Adminグループ）」のユーザーです。  
-> Django管理画面（/admin/）へ入る `createsuperuser` のユーザーとは別です。
-
 ---
 
 ## 5. ロールと権限
@@ -125,7 +119,7 @@ MVPでは主に以下の操作を記録します。
 - STATUS_CHANGED
 - ASSIGNEE_CHANGED
 - COMMENT_ADDED
-- （導入している場合）DUE_DATE_CHANGED
+- DUE_DATE_CHANGED
 
 ---
 
@@ -137,12 +131,10 @@ MVPでは主に以下の操作を記録します。
 - `True` の場合：閲覧認可が崩れ、Requesterが他人チケットを閲覧できる状態を再現します（IDOR想定）
 - `False` の場合：通常の認可（Requesterは自分のチケットのみ）
 
-設定例（`config/settings.py`）：
+欠陥スイッチ（`config/settings.py`）：
 ```python
 INTENTIONAL_BUG_IDOR = False
 ```
-
-> QA成果物側では「どのコミット/設定でテストしたか」を記録し、再現性を担保します。
 
 ---
 
