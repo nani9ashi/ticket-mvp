@@ -9,7 +9,11 @@
     <a href="/">Tickets</a>
     {% if user.is_authenticated %}
       <span>Logged in as: {{ user.username }}</span>
-      <a href="/accounts/logout/">Logout</a>
+
+      <form method="post" action="/accounts/logout/" style="display:inline; margin:0;">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+      </form>
     {% else %}
       <a href="/accounts/login/">Login</a>
     {% endif %}
