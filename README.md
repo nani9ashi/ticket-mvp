@@ -50,6 +50,16 @@ python manage.py runserver
 - ログイン：`http://127.0.0.1:8000/accounts/login/`
 - 一覧：`http://127.0.0.1:8000/`
 
+### 3.3 作業再開メモ
+```powershell
+# 1) このリポジトリ直下（manage.pyがある場所）へ移動
+# 2) 仮想環境を有効化（READMEの手順で .venv を作っている前提）
+.\.venv\Scripts\Activate.ps1
+# 3) DB差分を反映（変更がなくても実行してOK）
+python manage.py migrate
+# 4) サーバ起動
+python manage.py runserver
+```
 ---
 
 ## 4. デモユーザー（seed_demo）
